@@ -4,6 +4,6 @@
   <Platform>Windows</Platform>
   <Config />
   <SourceFiles>
-    <File>c:/users/htkim/documents/visual studio 2015/Projects/GamePrototype/GamePrototype/Content/Sprites/StandingTest.png</File>
+    <File>C:/Users/htkim/documents/visual studio 2015/Projects/GamePrototype/GamePrototype/Content/Sprites/StandingTest.png</File>
   </SourceFiles>
 </SourceFileCollection>

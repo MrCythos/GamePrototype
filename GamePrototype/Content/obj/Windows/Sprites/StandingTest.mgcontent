@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <SourceFile>c:/users/htkim/documents/visual studio 2015/Projects/GamePrototype/GamePrototype/Content/Sprites/StandingTest.png</SourceFile>
+  <SourceFile>C:/Users/htkim/documents/visual studio 2015/Projects/GamePrototype/GamePrototype/Content/Sprites/StandingTest.png</SourceFile>
   <SourceTime>2016-01-25T18:13:40-05:00</SourceTime>
-  <DestFile>c:/users/htkim/documents/visual studio 2015/Projects/GamePrototype/GamePrototype/Content/bin/Windows/Sprites/StandingTest.xnb</DestFile>
-  <DestTime>2016-10-20T09:00:54.4420087-04:00</DestTime>
+  <DestFile>C:/Users/htkim/documents/visual studio 2015/Projects/GamePrototype/GamePrototype/Content/bin/Windows/Sprites/StandingTest.xnb</DestFile>
+  <DestTime>2016-10-20T17:55:12.9660202-04:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2016-03-30T02:36:08-04:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

@@ -14,16 +14,25 @@ namespace GamePrototype
         SpriteBatch spriteBatch;
         Texture2D texture;
 
+        float deltaTime;
+
+        Vector2 mapOrigin = new Vector2(400, 200);
         Vector2 positionVector = Vector2.Zero;
         Vector2 accelerationVector = Vector2.Zero;
         int maxSpeed = 4;
-        float vectorAccelerationX = 0.1f;
-        float vectorAccelerationY = 0.1f;
-        float vectorDecelerationX = -0.2f;
-        float vectorDecelerationY = -0.2f;
-
+        float vectorAccelerationX = 0.3f;
+        float vectorAccelerationY = 0.3f;
+        float vectorDecelerationX = -0.5f;
+        float vectorDecelerationY = -0.5f;
+        
         Vector2 jump = Vector2.Zero;
-
+        float jumpDistance = 50f;
+        float jumpTimeElapsed = 0f;
+        float jumpTime = 0.5f;
+        float jumpChargeTime = 0f;
+        float jumpMaxCharge = 1.0f;
+        float jumpChargeMult;
+        bool jumpBool = true;
 
         public Game1()
         {
@@ -54,6 +63,7 @@ namespace GamePrototype
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
             texture = this.Content.Load<Texture2D>("Sprites/StandingTest");
+            positionVector = new Vector2(texture.Width / 2, texture.Height / 2);
 
             // TODO: use this.Content to load your game content here
         }
@@ -79,6 +89,7 @@ namespace GamePrototype
 
             MouseState ms = Mouse.GetState();
             var mousePosition = new Vector2(ms.X, ms.Y);
+            deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             //if (positionVector.Length() >= maxSpeed)
             //{
@@ -98,82 +109,122 @@ namespace GamePrototype
             positionVector.X += accelerationVector.X;
             positionVector.Y += accelerationVector.Y;
 
-            if (Keyboard.GetState().IsKeyDown(Keys.Right))
+            //movement of player, replace getstates with more elegant solution, maybe enum
+            if (Keyboard.GetState().IsKeyDown(Keys.D))
             {
                 accelerationVector.X += vectorAccelerationX;
             }
-            if (Keyboard.GetState().IsKeyDown(Keys.Left))
+            if (Keyboard.GetState().IsKeyDown(Keys.A))
             {
                 accelerationVector.X -= vectorAccelerationX;
             }
-            if (Keyboard.GetState().IsKeyDown(Keys.Up))
+            if (Keyboard.GetState().IsKeyDown(Keys.W))
             {
                 accelerationVector.Y -= vectorAccelerationY;
             }
-            if (Keyboard.GetState().IsKeyDown(Keys.Down))
+            if (Keyboard.GetState().IsKeyDown(Keys.S))
             {
                 accelerationVector.Y += vectorAccelerationY;
             }
 
+            //sets a maximum velocity
             if (accelerationVector.X > maxSpeed)
-            {
-                accelerationVector.X = maxSpeed;
+                {
+                    accelerationVector.X = maxSpeed;
+                }
+                if (accelerationVector.X < -maxSpeed)
+                {
+                    accelerationVector.X = -maxSpeed;
+                }
+                if (accelerationVector.Y > maxSpeed)
+                {
+                    accelerationVector.Y = maxSpeed;
+                }
+                if (accelerationVector.Y < -maxSpeed)
+                {
+                    accelerationVector.Y = -maxSpeed;
             }
-            if (accelerationVector.X < -maxSpeed)
-            {
-                accelerationVector.X = -maxSpeed;
-            }
-            if (accelerationVector.Y > maxSpeed)
-            {
-                accelerationVector.Y = maxSpeed;
-            }
-            if (accelerationVector.Y < -maxSpeed)
-            {
-                accelerationVector.Y = -maxSpeed;
-            }
-
             //slows x movement if player lets go of x movement keys
-            if (Keyboard.GetState().IsKeyUp(Keys.Left) && Keyboard.GetState().IsKeyUp(Keys.Right))
-            {
-                if (Math.Abs(accelerationVector.X) > Math.Abs(vectorDecelerationX))
+            //there's probably a more elegant solution here. there is a sort of conflict, if a player wants to slow down quickly, 
+            //they must let go of all keys, pressing left while going right is slower than letting go of the keys while going right.
+            if (Keyboard.GetState().IsKeyUp(Keys.A) && Keyboard.GetState().IsKeyUp(Keys.D))
                 {
-                    if (accelerationVector.X > vectorAccelerationX)
+                    if (Math.Abs(accelerationVector.X) > Math.Abs(vectorDecelerationX))
                     {
-                        accelerationVector.X += vectorDecelerationX;
+                        if (accelerationVector.X > vectorAccelerationX)
+                        {
+                            accelerationVector.X += vectorDecelerationX;
+                        }
+                        if (accelerationVector.X < -vectorAccelerationX)
+                        {
+                            accelerationVector.X -= vectorDecelerationX;
+                        }
                     }
-                    if (accelerationVector.X < -vectorAccelerationX)
+                    if (Math.Abs(accelerationVector.X) <= Math.Abs(vectorDecelerationX))
                     {
-                        accelerationVector.X -= vectorDecelerationX;
-                    }
-                }
-                if (Math.Abs(accelerationVector.X) < Math.Abs(vectorDecelerationX))
-                {
-                    accelerationVector.X = 0;
-                }
-            }
-            if (Keyboard.GetState().IsKeyUp(Keys.Up) && Keyboard.GetState().IsKeyUp(Keys.Down))
-            {
-                if (Math.Abs(accelerationVector.Y) > Math.Abs(vectorDecelerationY))
-                {
-                    if (accelerationVector.Y > vectorAccelerationY)
-                    {
-                        accelerationVector.Y += vectorDecelerationY;
-                    }
-                    if (accelerationVector.Y < -vectorAccelerationY)
-                    {
-                        accelerationVector.Y -= vectorDecelerationY;
+                        accelerationVector.X = 0;
                     }
                 }
-                if (Math.Abs(accelerationVector.Y) < Math.Abs(vectorDecelerationY))
+                if (Keyboard.GetState().IsKeyUp(Keys.W) && Keyboard.GetState().IsKeyUp(Keys.S))
                 {
-                    accelerationVector.Y = 0;
+                    if (Math.Abs(accelerationVector.Y) > Math.Abs(vectorDecelerationY))
+                    {
+                        if (accelerationVector.Y > vectorAccelerationY)
+                        {
+                            accelerationVector.Y += vectorDecelerationY;
+                        }
+                        if (accelerationVector.Y < -vectorAccelerationY)
+                        {
+                            accelerationVector.Y -= vectorDecelerationY;
+                        }
+                    }
+                    if (Math.Abs(accelerationVector.Y) <= Math.Abs(vectorDecelerationY))
+                    {
+                        accelerationVector.Y = 0;
+                    }
                 }
-            }
-            
+
+            jumpTimeElapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (jumpTimeElapsed > 10) jumpTimeElapsed = 1 + jumpTime; //prevents the time elapsed counter from constantly rising
+
             if (Keyboard.GetState().IsKeyDown(Keys.Space))
             {
-                jump = mousePosition - positionVector;
-                jump.Normalize();
+                jumpChargeTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
+                if (jumpChargeTime > jumpMaxCharge)
+                {
+                    jumpChargeTime = jumpMaxCharge;
+                }
+                jumpBool = false;
+                jumpChargeMult = jumpChargeTime / 0.25f;
+            }
+
+            if (Keyboard.GetState().IsKeyUp(Keys.Space))
+            {
+                if (jumpBool == false)
+                {
+                    float angleOfJump;
+
+                    if (jumpTimeElapsed > jumpTime)
+                    {
+                            if (accelerationVector.X != 0 || accelerationVector.Y != 0)
+                            {
+                                angleOfJump = (float)Math.Atan2(accelerationVector.X, accelerationVector.Y);
+
+                                positionVector.X += ((float)Math.Sin(angleOfJump) * jumpDistance * jumpChargeMult);
+                                positionVector.Y += ((float)Math.Cos(angleOfJump) * jumpDistance * jumpChargeMult);
+                            }
+                            else
+                            {   //instead of mouse position, use last known vector/acceleration
+                                //angleOfJump = (float)Math.Atan2(mousePosition.X - positionVector.X, mousePosition.Y - positionVector.Y);
+
+                                //positionVector.X += ((float)Math.Sin(angleOfJump) * jumpDistance);
+                                //positionVector.Y += ((float)Math.Cos(angleOfJump) * jumpDistance);
+                            }
+                        jumpChargeTime = 0f;
+                        jumpTimeElapsed = 0f;
+                    }
+                }
+                jumpBool = true;
             }
 
             // TODO: Add your update logic here
@@ -190,7 +241,7 @@ namespace GamePrototype
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             spriteBatch.Begin();
-            spriteBatch.Draw(texture, positionVector);
+            spriteBatch.Draw(texture, mapOrigin + positionVector);
             spriteBatch.End();
 
             // TODO: Add your drawing code here
